@@ -7,7 +7,7 @@ To start working, you can use utility class `system_false.json.Json`. It has som
 An example:
 ```java
 JsonObject obj;
-try (FileInputStream in = new FileInputStream("file.json") {
+try (FileInputStream in = new FileInputStream("file.json")) {
     obj = Json.parseJsonObject(in);
 }
 if (!obj.isValue("foo")) {
@@ -18,7 +18,22 @@ System.out.println(obj.getValue("foo").asString());
 ### Parser usage
 Also you can interact with json parser directly. Standart parser is `system_false.json.parser.Json5Parser`. It can parses JSON and JSON5 text.
 Common methods begins with *parse* (parseObject(), parseNumber(), parseAny()). All of these methods do not requare arguments but they expect
-that given JSON source was correct. If it contains syntax mistakes, parser will stop working and throws an excpetion.
+that given JSON source was correct. If it contains syntax mistakes, parser will stop working and throws an excpetion. Using parser you can
+known what is next element by using method `nextElement()`. An example:
+```java
+Json5Parser j5p;
+try (FileInputStream in = new FileInputStream("file.json")) {
+    j5p = Json5Parser.create(in);
+}
+if (j5p.nextElement() != Json5Parser.ELEMENT_OBJECT) {
+    throw new RuntimeException("json element is not object");
+}
+JsonObject obj = j5p.parseObject();
+if (!obj.isValue("foo")) {
+    throw new RuntimeException("element \"foo\" is not value");
+}
+System.out.println(obj.getValue("foo").asString());
+```
 ### Exception handling
 To make it easier to find the error, the exception message will indicate the line number and character on which the failure occurred.
 All error messages look like this:
