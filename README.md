@@ -22,13 +22,13 @@ that given JSON source was correct. If it contains syntax mistakes, parser will 
 known what is next element by using method `nextElement()`. An example:
 ```java
 Json5Parser j5p;
-try (FileInputStream in = new FileInputStream("file.json")) {
-    j5p = Json5Parser.create(in);
-}
+FileInputStream in = new FileInputStream("file.json");
+j5p = Json5Parser.create(in);
 if (j5p.nextElement() != Json5Parser.ELEMENT_OBJECT) {
     throw new RuntimeException("json element is not object");
 }
 JsonObject obj = j5p.parseObject();
+in.close();
 if (!obj.isValue("foo")) {
     throw new RuntimeException("element \"foo\" is not value");
 }
