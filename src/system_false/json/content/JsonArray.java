@@ -15,10 +15,7 @@
 
 package system_false.json.content;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class for JSON array structure. It contains ordinal sequence of {@link JsonElement}.
@@ -29,6 +26,11 @@ import java.util.List;
  */
 public final class JsonArray extends AbstractList<JsonElement> implements JsonStructure {
     /**
+     * Path to this element.
+     */
+    JsonPath.BuildablePath path = new JsonPath.BuildablePath();
+
+    /**
      * List that contains all elements.
      */
     ArrayList<JsonElement> values;
@@ -37,7 +39,7 @@ public final class JsonArray extends AbstractList<JsonElement> implements JsonSt
      * Constructor creates empty object.
      */
     public JsonArray() {
-        this(List.of());
+        this(Collections.emptyList());
     }
 
     /**
@@ -52,6 +54,43 @@ public final class JsonArray extends AbstractList<JsonElement> implements JsonSt
             i++;
         }
         this.values = new ArrayList<>(values);
+    }
+
+    /**
+     * Method that index all sub elements and if they contain elements, them will be
+     * indexed too.
+     * @param path path to use for this object
+     */
+    void resolvePath(JsonPath.BuildablePath path) {
+        for (int i = 0; i < values.size(); i++) {
+            JsonPath.BuildablePath curPath = path.clone();
+            curPath.add(i);
+            JsonElement je = values.get(i);
+            if (je instanceof JsonArray) {
+                ((JsonArray) je).resolvePath(curPath);
+            } else if (je instanceof JsonObject) {
+                ((JsonObject) je).resolvePath(curPath);
+            } else if (je.getPath() instanceof JsonPath.BuildablePath) {
+                ((JsonPath.BuildablePath) je.getPath()).set(curPath);
+            }
+        }
+        this.path.set(path);
+    }
+
+    /**
+     * Method clears all paths from all elements and sub-elements of this array.
+     */
+    void clearPath() {
+        for (JsonElement je : this) {
+            if (je instanceof JsonArray) {
+                ((JsonArray) je).clearPath();
+            } else if (je instanceof JsonObject) {
+                ((JsonObject) je).clearPath();
+            } else if (je.getPath() instanceof JsonPath.BuildablePath) {
+                ((JsonPath.BuildablePath) je.getPath()).clear();
+            }
+        }
+        path.clear();
     }
 
     @Override
@@ -137,7 +176,7 @@ public final class JsonArray extends AbstractList<JsonElement> implements JsonSt
 
     @Override
     public JsonElement[] toArray() {
-        return values.toArray(JsonElement[]::new);
+        return values.toArray(new JsonElement[0]);
     }
 
     @Override
@@ -171,18 +210,20 @@ public final class JsonArray extends AbstractList<JsonElement> implements JsonSt
         sb.append("[\n");
         indent++;
         for (int i = 0, size = values.size(); i < size; i++) {
-            sb.append(" ".repeat(indent * 4));
+            sb.append(spaces(indent * 4));
             JsonElement je = values.get(i);
-            if (je instanceof JsonValue jv)
+            if (je instanceof JsonValue) {
+                JsonValue jv = (JsonValue) je;
                 sb.append(jv.toJsonString());
-            else if (je instanceof JsonStructure js)
+            } else if (je instanceof JsonStructure) {
+                JsonStructure js = (JsonStructure) je;
                 sb.append(js.toJsonString(indent));
-            else sb.append('"').append(je.getClass().getCanonicalName()).append('"');
+            } else sb.append('"').append(je.getClass().getCanonicalName()).append('"');
             if (i < size - 1)
                 sb.append(",\n");
             else sb.append('\n');
         }
-        sb.append(" ".repeat(--indent * 4)).append(']');
+        sb.append(spaces(--indent * 4)).append(']');
         return sb.toString();
     }
 
@@ -195,18 +236,20 @@ public final class JsonArray extends AbstractList<JsonElement> implements JsonSt
         sb.append("[\n");
         indent++;
         for (int i = 0, size = values.size(); i < size; i++) {
-            sb.append(" ".repeat(indent * 4));
+            sb.append(spaces(indent * 4));
             JsonElement je = values.get(i);
-            if (je instanceof JsonValue jv)
+            if (je instanceof JsonValue) {
+                JsonValue jv = (JsonValue) je;
                 sb.append(jv.toJson5String());
-            else if (je instanceof JsonStructure js)
+            } else if (je instanceof JsonStructure) {
+                JsonStructure js = (JsonStructure) je;
                 sb.append(js.toJson5String(indent));
-            else sb.append('"').append(je.getClass().getCanonicalName()).append('"');
+            } else sb.append('"').append(je.getClass().getCanonicalName()).append('"');
             if (i < size - 1)
                 sb.append(",\n");
             else sb.append('\n');
         }
-        sb.append(" ".repeat(--indent * 4)).append(']');
+        sb.append(spaces(--indent * 4)).append(']');
         return sb.toString();
     }
 
@@ -228,6 +271,11 @@ public final class JsonArray extends AbstractList<JsonElement> implements JsonSt
     }
 
     @Override
+    public JsonPath getPath() {
+        return path;
+    }
+
+    @Override
     public JsonArray clone() {
         JsonArray clone;
         try {
@@ -239,7 +287,16 @@ public final class JsonArray extends AbstractList<JsonElement> implements JsonSt
         for (int i = 0; i < this.values.size(); i++) {
             clone.values.add(this.values.get(i).copy());
         }
+        clone.path = path.clone();
         return clone;
+    }
+
+    private String spaces(int count) {
+        StringBuilder spaces = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            spaces.append(" ");
+        }
+        return spaces.toString();
     }
 
     @Override

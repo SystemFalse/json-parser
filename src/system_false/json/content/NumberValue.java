@@ -28,6 +28,11 @@ import java.math.BigInteger;
  */
 public abstract class NumberValue extends Number implements JsonValue {
     /**
+     * Path to this element.
+     */
+    JsonPath.BuildablePath path = new JsonPath.BuildablePath();
+
+    /**
      * Method returns whether this number is NaN.
      *
      * @return {@code true} if this number is NaN, {@code false} otherwise
@@ -141,5 +146,10 @@ public abstract class NumberValue extends Number implements JsonValue {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public JsonPath getPath() {
+        return path;
     }
 }

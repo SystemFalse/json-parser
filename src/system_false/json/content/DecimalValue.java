@@ -119,6 +119,7 @@ public final class DecimalValue extends NumberValue {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+        clone.path = path.clone();
         return clone;
     }
 

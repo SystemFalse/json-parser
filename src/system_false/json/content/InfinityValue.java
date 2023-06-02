@@ -46,7 +46,7 @@ public final class InfinityValue extends NumberValue {
 
     @Override
     public String toJson5String() {
-        return "" + (negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
+        return String.valueOf(negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
     }
 
     @Override
@@ -122,6 +122,7 @@ public final class InfinityValue extends NumberValue {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+        clone.path = path.clone();
         return clone;
     }
 

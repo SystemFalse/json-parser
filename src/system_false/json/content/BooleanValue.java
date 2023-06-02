@@ -25,6 +25,11 @@ package system_false.json.content;
  */
 public final class BooleanValue implements JsonValue {
     /**
+     * Path to this element.
+     */
+    JsonPath.BuildablePath path = new JsonPath.BuildablePath();
+
+    /**
      * Primitive {@code boolean} value of this object.
      */
     private final boolean value;
@@ -95,6 +100,11 @@ public final class BooleanValue implements JsonValue {
     }
 
     @Override
+    public JsonPath getPath() {
+        return path;
+    }
+
+    @Override
     public BooleanValue clone() {
         BooleanValue clone;
         try {
@@ -102,6 +112,7 @@ public final class BooleanValue implements JsonValue {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+        clone.path = path.clone();
         return clone;
     }
 

@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -30,6 +32,11 @@ import java.util.regex.Pattern;
  * </el>
  */
 public final class StringValue implements JsonValue, CharSequence {
+    /**
+     * Path to this element.
+     */
+    JsonPath.BuildablePath path = new JsonPath.BuildablePath();
+
     /**
      * String value.
      */
@@ -79,7 +86,7 @@ public final class StringValue implements JsonValue, CharSequence {
 
     @Override
     public NumberValue asNumber() {
-        var m = NUMBER.matcher(value);
+        Matcher m = NUMBER.matcher(value);
         if (!m.matches())
             throw new IllegalArgumentException("string is not number");
         if (m.group("number") == null)
@@ -162,6 +169,11 @@ public final class StringValue implements JsonValue, CharSequence {
     }
 
     @Override
+    public JsonPath getPath() {
+        return path;
+    }
+
+    @Override
     public StringValue clone() {
         StringValue clone;
         try {
@@ -169,6 +181,7 @@ public final class StringValue implements JsonValue, CharSequence {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+        clone.path = path.clone();
         return clone;
     }
 
@@ -230,12 +243,20 @@ public final class StringValue implements JsonValue, CharSequence {
             else if (ch == bracket) sb.append('\\').append(bracket);
             else if (Character.isISOControl(ch) || ch > 0xff && (!Character.isAlphabetic(ch))) {
                 String hex = Integer.toHexString(ch);
-                hex = "0".repeat(4 - hex.length()) + hex;
+                hex = zeros(4 - hex.length()) + hex;
                 sb.append("\\u").append(hex);
             } else sb.append(ch);
         }
         sb.append(bracket);
         return sb.toString();
+    }
+
+    private static String zeros(int count) {
+        StringBuilder zeros = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            zeros.append("0");
+        }
+        return zeros.toString();
     }
 
     /**
@@ -385,7 +406,7 @@ public final class StringValue implements JsonValue, CharSequence {
     /**
      * List of reserved names in JavaScript. It is used to check object key to be identifiable name.
      */
-    private static final List<String> ECMA_RESERVED_NAMES = List.of(
+    private static final List<String> ECMA_RESERVED_NAMES = Arrays.asList(
             "break", "do", "instanceof", "typeof",
             "case", "else", "new", "var",
             "catch", "finally", "return", "void",

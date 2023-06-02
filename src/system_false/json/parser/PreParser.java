@@ -17,7 +17,6 @@ package system_false.json.parser;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -283,11 +282,17 @@ public class PreParser {
             @Override
             public int read(char[] cbuf, int off, int len) throws IOException {
                 ensureClose();
-                Objects.checkFromIndexSize(off, len, cbuf.length);
+                checkFromIndexSize(off, len, cbuf.length);
                 char[] ch = new char[1];
                 int i = 0;
                 for (; i < len && next(ch); i++) cbuf[off + i] = ch[0];
                 return i;
+            }
+
+            private void checkFromIndexSize(int off, int len, int length) {
+                if ((off | len) < 0 || off + len > length)
+                    throw new IndexOutOfBoundsException(
+                            "index " + off + " of sub length " + len + " and length " + length);
             }
 
             @Override

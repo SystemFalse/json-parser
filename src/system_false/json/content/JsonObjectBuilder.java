@@ -31,6 +31,11 @@ import java.math.BigInteger;
  */
 public class JsonObjectBuilder implements StructureBuilder {
     /**
+     * Package name of this class.
+     */
+    private static final String PACKAGE_NAME = JsonObjectBuilder.class.getPackage().getName();
+
+    /**
      * Field that contains constructing instance of JsonObject.
      */
     JsonObject value;
@@ -63,7 +68,7 @@ public class JsonObjectBuilder implements StructureBuilder {
      * @throws NullPointerException if key is null
      */
     public JsonObjectBuilder putNull(String key) {
-        return put(key, NullValue.NULL);
+        return put(key, new NullValue());
     }
 
     /**
@@ -199,7 +204,9 @@ public class JsonObjectBuilder implements StructureBuilder {
         checkBuilt();
         if (element == null)
             throw new NullPointerException("null element");
-        value.values.put(key, element);
+        if (!element.getClass().getPackage().getName().equals(PACKAGE_NAME))
+            throw new IllegalArgumentException("element class is not supported");
+        value.values.put(key, element.copy());
         return this;
     }
 
@@ -212,7 +219,15 @@ public class JsonObjectBuilder implements StructureBuilder {
     public JsonObjectBuilder remove(String key) {
         checkBuilt();
         if (key == null) return this;
-        value.values.remove(key);
+        JsonElement element = value.values.remove(key);
+        if (element != null && element.isIndexed()) {
+            if (element instanceof JsonArray)
+                ((JsonArray) element).resolvePath(new JsonPath.BuildablePath());
+            else if (element instanceof JsonObject)
+                ((JsonObject) element).resolvePath(new JsonPath.BuildablePath());
+            else if (element.getPath() instanceof JsonPath.BuildablePath)
+                ((JsonPath.BuildablePath) element.getPath()).clear();
+        }
         return this;
     }
 
@@ -223,6 +238,13 @@ public class JsonObjectBuilder implements StructureBuilder {
 
     @Override
     public JsonObject build() {
+        return build(false);
+    }
+
+    @Override
+    public JsonObject build(boolean setPath) {
+        if (built) return value;
+        if (setPath) value.resolvePath(new JsonPath.BuildablePath());
         built = true;
         return value;
     }

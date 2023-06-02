@@ -28,6 +28,11 @@ public final class NaNValue extends NumberValue {
      */
     public static final NaNValue NaN = new NaNValue();
 
+    /**
+     * Path to this element.
+     */
+    JsonPath.BuildablePath path = new JsonPath.BuildablePath();
+
     @Override
     public boolean isNaN() {
         return true;
@@ -106,6 +111,7 @@ public final class NaNValue extends NumberValue {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+        clone.path = path.clone();
         return clone;
     }
 

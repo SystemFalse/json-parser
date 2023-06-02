@@ -15,6 +15,8 @@
 
 package system_false.json.content;
 
+import java.util.NoSuchElementException;
+
 /**
  * Common class for all JSON structures such are object and array.<br />
  * All these types can contain any json element.
@@ -72,5 +74,33 @@ public interface JsonStructure extends JsonElement {
      */
     default String toFormattedJson5() {
         return toJson5String(0);
+    }
+
+    default JsonElement findElement(String path) {
+        return findElement(JsonPath.compile(path));
+    }
+
+    default JsonElement findElement(JsonPath path) {
+        return path.get(this);
+    }
+
+    default JsonValue findValue(String path) {
+        return findValue(JsonPath.compile(path));
+    }
+
+    default JsonValue findValue(JsonPath path) {
+        JsonElement element = path.get(this);
+        if (element instanceof JsonValue) return (JsonValue) element;
+        else throw new NoSuchElementException("incorrect end element type");
+    }
+
+    default JsonStructure findStructure(String path) {
+        return findStructure(JsonPath.compile(path));
+    }
+
+    default JsonStructure findStructure(JsonPath path) {
+        JsonElement element = path.get(this);
+        if (element instanceof JsonStructure) return (JsonStructure) element;
+        else throw new NoSuchElementException("incorrect end element type");
     }
 }
