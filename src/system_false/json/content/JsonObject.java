@@ -27,6 +27,10 @@ import java.util.*;
  * @see JsonObjectBuilder
  */
 public final class JsonObject extends AbstractMap<String, JsonElement> implements JsonStructure {
+    /**
+     * Path to this element.
+     */
+    JsonPath.BuildablePath path = new JsonPath.BuildablePath();
 
     /**
      * Map which contains key-value pairs.
@@ -37,23 +41,67 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
      * Constructor creates empty object.
      */
     public JsonObject() {
-        this(Map.of());
+        this(Collections.emptyMap());
     }
 
     /**
      * Constructor creates object with given key-value pairs.
      * @param values map which contains keys JSON values
+     *
      * @throws NullPointerException is any key or value is null
      */
     public JsonObject(Map<String, ? extends JsonElement> values) {
-        for (var entry : values.entrySet()) {
-            if (entry.getKey() == null)
-                throw new NullPointerException("null key with value " + entry.getValue());
-            if (entry.getValue() == null)
-                throw new NullPointerException("null value with key " + entry.getKey());
-        }
+        values.forEach((key, value) -> {
+            if (key == null)
+                throw new NullPointerException("null key with value " + value);
+            if (value == null)
+                throw new NullPointerException("null value with key " + key);
+        });
         this.values = new TreeMap<>(String::compareTo);
         this.values.putAll(values);
+    }
+
+    /**
+     * Method that index all sub elements and if they contain elements, them will be
+     * indexed too.
+     * @param path path to use for this object
+     */
+    void resolvePath(JsonPath.BuildablePath path) {
+        for (Entry<String, ? extends JsonElement> entry : values.entrySet()) {
+            JsonPath.BuildablePath curPath = path.clone();
+            try {
+                JsonPath.checkName(entry.getKey());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("path \"" + path + "\", element \""
+                        + entry.getKey() + "\": name is incorrect");
+            }
+            curPath.add(entry.getKey());
+            JsonElement je = entry.getValue();
+            if (je instanceof JsonArray) {
+                ((JsonArray) je).resolvePath(curPath);
+            } else if (je instanceof JsonObject) {
+                ((JsonObject) je).resolvePath(curPath);
+            } else if (je.getPath() instanceof JsonPath.BuildablePath) {
+                ((JsonPath.BuildablePath) je.getPath()).set(curPath);
+            }
+        }
+        this.path.set(path);
+    }
+
+    /**
+     * Method clears all paths from all elements and sub-elements of this object.
+     */
+    void clearPath() {
+        for (JsonElement je : values.values()) {
+            if (je instanceof JsonArray) {
+                ((JsonArray) je).clearPath();
+            } else if (je instanceof JsonObject) {
+                ((JsonObject) je).clearPath();
+            } else if (je.getPath() instanceof JsonPath.BuildablePath) {
+                ((JsonPath.BuildablePath) je.getPath()).clear();
+            }
+        }
+        path.clear();
     }
 
     @Override
@@ -73,6 +121,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
 
     @Override
     public JsonElement get(Object key) {
+        if (!containsKey(key)) throw new NoSuchElementException("no value for given key");
         return values.get(key);
     }
 
@@ -167,7 +216,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
         StringBuilder sb = new StringBuilder();
         sb.append('{');
         int i = 0, size = values.size();
-        for (var entry : values.entrySet()) {
+        for (Entry<String, JsonElement> entry : values.entrySet()) {
             sb.append(StringValue.toJSONString(entry.getKey())).append(": ");
             sb.append(entry.getValue().toJsonString());
             if (i++ < size - 1)
@@ -186,19 +235,21 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
         sb.append("{\n");
         indent++;
         int i = 0, size = values.size();
-        for (var entry : values.entrySet()) {
-            sb.append(" ".repeat(indent * 4)).append(StringValue.toJSONString(entry.getKey())).append(": ");
+        for (Entry<String, JsonElement> entry : values.entrySet()) {
+            sb.append(spaces(indent * 4)).append(StringValue.toJSONString(entry.getKey())).append(": ");
             JsonElement je = entry.getValue();
-            if (je instanceof JsonValue jv)
+            if (je instanceof JsonValue) {
+                JsonValue jv = (JsonValue) je;
                 sb.append(jv.toJsonString());
-            else if (je instanceof JsonStructure js)
+            } else if (je instanceof JsonStructure) {
+                JsonStructure js = (JsonStructure) je;
                 sb.append(js.toJsonString(indent));
-            else sb.append('"').append(je.getClass().getCanonicalName()).append('"');
+            } else sb.append('"').append(je.getClass().getCanonicalName()).append('"');
             if (i++ < size - 1)
                 sb.append(",\n");
             else sb.append('\n');
         }
-        sb.append(" ".repeat(--indent * 4)).append('}');
+        sb.append(spaces(--indent * 4)).append('}');
         return sb.toString();
     }
 
@@ -207,7 +258,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
         StringBuilder sb = new StringBuilder();
         int i = 0, size = values.size();
         sb.append('{');
-        for (var entry : values.entrySet()) {
+        for (Entry<String, JsonElement> entry : values.entrySet()) {
             if (StringValue.isECMAKey(entry.getKey()))
                 sb.append(entry.getKey());
             else sb.append(StringValue.toJSONString(entry.getKey(), '\''));
@@ -229,23 +280,25 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
         int i = 0, size = values.size();
         sb.append("{\n");
         indent++;
-        for (var entry : values.entrySet()) {
-            sb.append(" ".repeat(indent * 4));
+        for (Entry<String, JsonElement> entry : values.entrySet()) {
+            sb.append(spaces(indent * 4));
             if (StringValue.isECMAKey(entry.getKey()))
                 sb.append(entry.getKey());
             else sb.append(StringValue.toJSONString(entry.getKey(), '\''));
             sb.append(": ");
             JsonElement je = entry.getValue();
-            if (je instanceof JsonValue jv)
+            if (je instanceof JsonValue) {
+                JsonValue jv = (JsonValue) je;
                 sb.append(jv.toJson5String());
-            else if (je instanceof JsonStructure js)
+            } else if (je instanceof JsonStructure) {
+                JsonStructure js = (JsonStructure) je;
                 sb.append(js.toJson5String(indent));
-            else sb.append('"').append(je.getClass().getCanonicalName()).append('"');
+            } else sb.append('"').append(je.getClass().getCanonicalName()).append('"');
             if (i++ < size - 1)
                 sb.append(",\n");
             else sb.append('\n');
         }
-        sb.append(" ".repeat(4 * --indent)).append('}');
+        sb.append(spaces(4 * --indent)).append('}');
         return sb.toString();
     }
 
@@ -254,7 +307,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
         if (isEmpty()) return path + "={}";
         StringBuilder sb = new StringBuilder();
         int i = 0;
-        for (var entry : values.entrySet()) {
+        for (Entry<String, JsonElement> entry : values.entrySet()) {
             String key = StringValue.toJSONString(entry.getKey()).replaceAll("(?<!\\\\)/", "\\\\/");
             String curPath = path + '/' + key.substring(1, key.length() - 1);
             sb.append(entry.getValue().toJson2String(curPath));
@@ -269,6 +322,11 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
     }
 
     @Override
+    public JsonPath getPath() {
+        return path;
+    }
+
+    @Override
     public JsonObject clone() {
         JsonObject clone;
         try {
@@ -277,10 +335,19 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
             throw new RuntimeException(e);
         }
         clone.values = new TreeMap<>(String::compareTo);
-        for (var entry : this.values.entrySet()) {
+        for (Entry<String, JsonElement> entry : this.values.entrySet()) {
             clone.values.put(entry.getKey(), entry.getValue().copy());
         }
+        clone.path = path.clone();
         return clone;
+    }
+
+    private String spaces(int count) {
+        StringBuilder spaces = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            spaces.append(" ");
+        }
+        return spaces.toString();
     }
 
     @Override

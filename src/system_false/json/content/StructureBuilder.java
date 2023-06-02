@@ -29,8 +29,25 @@ public interface StructureBuilder {
 
     /**
      * Method build JSON structure and returns it. After invoking this method
-     * any other methods that modify structure will be not available.
+     * any other methods that modify structure will be not available. By default,
+     * it calls method {@link #build(boolean)} with {@code false} parameter.
+     *
      * @return built JSON structure
+     * @see #build(boolean)
      */
-    JsonStructure build();
+    default JsonStructure build() {
+        return build(false);
+    }
+
+    /**
+     * Method build JSON structure and returns it. After invoking this method
+     * any other methods that modify structure will be not available. This method also can index
+     * all element in the structure. That means that every element in this structure and all
+     * included structures will have own path which can be gotten by method {@link JsonElement#getPath()}.
+     * @param setPath if true, all elements in building structure will be indexed
+     *
+     * @return built JSON structure
+     * @see JsonPath
+     */
+    JsonStructure build(boolean setPath);
 }

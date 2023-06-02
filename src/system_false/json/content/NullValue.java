@@ -30,6 +30,11 @@ public final class NullValue implements JsonValue {
      */
     public static final NullValue NULL = new NullValue();
 
+    /**
+     * Path to this element.
+     */
+    JsonPath.BuildablePath path = new JsonPath.BuildablePath();
+
     @Override
     public boolean isNull() {
         return true;
@@ -81,6 +86,11 @@ public final class NullValue implements JsonValue {
     }
 
     @Override
+    public JsonPath getPath() {
+        return path;
+    }
+
+    @Override
     public NullValue clone() {
         NullValue clone;
         try {
@@ -88,6 +98,7 @@ public final class NullValue implements JsonValue {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+        clone.path = path.clone();
         return clone;
     }
 

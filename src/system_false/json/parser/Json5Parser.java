@@ -22,7 +22,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -77,13 +79,20 @@ public class Json5Parser {
      * PreParser will read symbols ignoring whitespaces and comments.
      */
     private final PreParser preParser;
+    /**
+     * This flag shows whether JSON element must be indexed or not;
+     */
+    private final boolean index;
 
     /**
      * Private constructor that creates parser with given Reader as text source.
+     *
      * @param pp JSON text pre parser source
+     * @param index indexation flag
      */
-    private Json5Parser(PreParser pp) {
+    private Json5Parser(PreParser pp, boolean index) {
         this.preParser = pp;
+        this.index = index;
     }
 
     /**
@@ -140,7 +149,7 @@ public class Json5Parser {
         if (!preParser.next(ch) || ch[0] != 'u') throw new IOException("unknown value");
         if (!preParser.next(ch) || ch[0] != 'l') throw new IOException("unknown value");
         if (!preParser.next(ch) || ch[0] != 'l') throw new IOException("unknown value");
-        return NullValue.NULL;
+        return new NullValue();
     }
 
     /**
@@ -239,7 +248,7 @@ public class Json5Parser {
                 break;
             }
         }
-        var m = NUMBER.matcher(sb.toString());
+        Matcher m = NUMBER.matcher(sb.toString());
         if (!m.matches())
             throw new IOException("incorrect number value");
         if (m.group("number") == null)
@@ -303,7 +312,7 @@ public class Json5Parser {
         return new StringValue(sb.toString());
     }
 
-    private static final List<String> ECMA_RESERVED_NAMES = List.of(
+    private static final List<String> ECMA_RESERVED_NAMES = Arrays.asList(
             "break", "do", "instanceof", "typeof",
             "case", "else", "new", "var",
             "catch", "finally", "return", "void",
@@ -331,7 +340,7 @@ public class Json5Parser {
             break;
         }
         if (ECMA_RESERVED_NAMES.contains(sb.toString()))
-            throw new IOException("key \"" + sb + "\" is reserved key word and can not be used");
+            throw new IOException("key \"" + sb + "\" is reserved word and can not be used");
         return sb.toString();
     }
 
@@ -371,7 +380,7 @@ public class Json5Parser {
         while (preParser.nextReadable(ch)) {
             next = ch[0];
 
-            if (next == ']') return builder.build();
+            if (next == ']') return builder.build(index);
 
             if (requireDelimiter && next == ',') {
                 requireDelimiter = false;
@@ -424,7 +433,7 @@ public class Json5Parser {
         while (preParser.nextReadable(ch)) {
             next = ch[0];
 
-            if (isKey && next == '}') return builder.build();
+            if (isKey && next == '}') return builder.build(index);
             else if (!isKey && next == '}') throw new IOException("missing value in the end of object");
 
             if (isKey && requireDelimiter && next == ',') {
@@ -446,6 +455,13 @@ public class Json5Parser {
             if (isKey) {
                 if (next == '"' || next == '\'') key = parseString0(next).asString();
                 else key = parseECMAKey(next);
+                if (index) {
+                    try {
+                        JsonPath.checkName(key);
+                    } catch (IllegalArgumentException e) {
+                        throw new IOException("object key \"" + key + "\" can not be used in indexing");
+                    }
+                }
                 requireDelimiter = true;
                 isKey = false;
                 continue;
@@ -525,6 +541,8 @@ public class Json5Parser {
         return NO_ELEMENT;
     }
 
+    private static final Pattern BLACK_PATTERN = Pattern.compile("\\s*");
+
     /**
      * Method is static constructor for this class. It creates new parser with given string as JSON
      * source.
@@ -534,11 +552,24 @@ public class Json5Parser {
      * @throws NullPointerException if string is null
      */
     public static Json5Parser create(String json) {
+        return create(json, false);
+    }
+
+    /**
+     * Method is static constructor for this class. It creates new parser with given string as JSON
+     * source. If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json JSON text
+     * @param index indexation flag
+     *
+     * @return new instance of parser
+     * @see JsonPath
+     */
+    public static Json5Parser create(String json, boolean index) {
         if (json == null)
             throw new NullPointerException("null string");
-        if (json.isBlank())
+        if (BLACK_PATTERN.matcher(json).matches())
             throw new IllegalArgumentException("blank string");
-        return new Json5Parser(new PreParser(new StringReader(json)));
+        return new Json5Parser(new PreParser(new StringReader(json)), index);
     }
 
     /**
@@ -550,7 +581,22 @@ public class Json5Parser {
      * @throws NullPointerException if stream is null
      */
     public static Json5Parser create(InputStream json) {
-        return create(json, StandardCharsets.UTF_8);
+        return create(json, StandardCharsets.UTF_8, false);
+    }
+
+    /**
+     * Method is static constructor for this class. It creates new parser with given InputStream as JSON
+     * source. Default charset is UTF-8. If the index flag is specified, then all parsed objects will be indexed
+     * immediately.
+     * @param json stream, containing JSON text
+     * @param index indexation flag
+     *
+     * @return new instance of parser
+     * @throws NullPointerException if stream is null
+     * @see JsonPath
+     */
+    public static Json5Parser create(InputStream json, boolean index) {
+        return create(json, StandardCharsets.UTF_8, index);
     }
 
     /**
@@ -563,11 +609,26 @@ public class Json5Parser {
      * @throws NullPointerException if any argument is null
      */
     public static Json5Parser create(InputStream json, Charset charset) {
+        return create(json, charset, false);
+    }
+
+    /**
+     * Method is static constructor for this class. It creates new parser with given InputStream as JSON
+     * source and charset. If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json stream, containing JSON text
+     * @param charset charset to use
+     * @param index indexation flag
+     *
+     * @return new instance of parser
+     * @throws NullPointerException if any argument is null
+     * @see JsonPath
+     */
+    public static Json5Parser create(InputStream json, Charset charset, boolean index) {
         if (json == null)
             throw new NullPointerException("null stream");
         if (charset == null)
             throw new NullPointerException("null charset");
-        return new Json5Parser(new PreParser(new InputStreamReader(json, charset)));
+        return new Json5Parser(new PreParser(new InputStreamReader(json, charset)), index);
     }
 
     /**
@@ -579,9 +640,23 @@ public class Json5Parser {
      * @throws NullPointerException if reader is null
      */
     public static Json5Parser create(Reader json) {
+        return create(json, false);
+    }
+
+    /**
+     * Method is static constructor for this class. It creates new parser with given Reader as JSON
+     * source. If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json reader, containing JSON text
+     * @param index indexation flag
+     *
+     * @return new instance of parser
+     * @throws NullPointerException if reader is null
+     * @see JsonPath
+     */
+    public static Json5Parser create(Reader json, boolean index) {
         if (json == null)
             throw new NullPointerException("null string");
-        return new Json5Parser(new PreParser(json));
+        return new Json5Parser(new PreParser(json), index);
     }
 
     /**
@@ -592,8 +667,22 @@ public class Json5Parser {
      * @throws NullPointerException if parser is null
      */
     public static Json5Parser create(PreParser parser) {
+        return create(parser, false);
+    }
+
+    /**
+     * Method is static constructor for this class. It creates new parser with specified PreParser.
+     * If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param parser pre parser, with JSON source.
+     * @param index indexation flag
+     *
+     * @return new instance of parser
+     * @throws NullPointerException if parser is null
+     * @see JsonPath
+     */
+    public static Json5Parser create(PreParser parser, boolean index) {
         if (parser == null)
             throw new NullPointerException("null parser");
-        return new Json5Parser(parser);
+        return new Json5Parser(parser, index);
     }
 }

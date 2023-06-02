@@ -17,6 +17,7 @@ package system_false.json;
 
 import system_false.json.content.JsonArray;
 import system_false.json.content.JsonObject;
+import system_false.json.content.JsonPath;
 import system_false.json.content.JsonValue;
 import system_false.json.parser.Json5Parser;
 import system_false.json.parser.ParserException;
@@ -106,7 +107,21 @@ public class Json {
      * @throws ParserException if an exception occurred during parsing
      */
     public static JsonObject parseJsonObject(String json) throws ParserException {
-        Json5Parser parser = Json5Parser.create(json);
+        return parseJsonObject(json, false);
+    }
+
+    /**
+     * Method parses {@code String} and create returns {@code JsonObject} for parsed text.
+     * If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json JSON text
+     * @param index indexation flag
+     *
+     * @return parsed {@code JsonObject}
+     * @throws ParserException if an exception occurred during parsing
+     * @see JsonPath
+     */
+    public static JsonObject parseJsonObject(String json, boolean index) throws ParserException {
+        Json5Parser parser = Json5Parser.create(json, index);
         if ((parser.nextElement() & Json5Parser.ELEMENT_OBJECT) != 0)
             return parser.parseObject();
         else throw new IllegalArgumentException("first element is string is not JsonObject");
@@ -120,7 +135,21 @@ public class Json {
      * @throws ParserException if an exception occurred during parsing
      */
     public static JsonObject parseJsonObject(Reader json) throws ParserException {
-        Json5Parser parser = Json5Parser.create(json);
+        return parseJsonObject(json, false);
+    }
+
+    /**
+     * Method parses {@code Reader} text and create returns {@code JsonObject} for parsed text.
+     * If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json JSON text reader
+     * @param index indexation flag
+     *
+     * @return parsed {@code JsonObject}
+     * @throws ParserException if an exception occurred during parsing
+     * @see JsonPath
+     */
+    public static JsonObject parseJsonObject(Reader json, boolean index) throws ParserException {
+        Json5Parser parser = Json5Parser.create(json, index);
         if ((parser.nextElement() & Json5Parser.ELEMENT_OBJECT) != 0)
             return parser.parseObject();
         else throw new IllegalArgumentException("first element is string is not JsonObject");
@@ -135,7 +164,21 @@ public class Json {
      * @throws ParserException if an exception occurred during parsing
      */
     public static JsonObject parseJsonObject(InputStream json) throws ParserException {
-        Json5Parser parser = Json5Parser.create(json);
+        return parseJsonObject(json, false);
+    }
+
+    /**
+     * Method parses {@code InputStream} containing JSON text and create returns {@code JsonObject}
+     * for parsed text. If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json {@code InputStream} for JSON text
+     * @param index indexation flag
+     *
+     * @return parsed {@code JsonObject}
+     * @throws ParserException if an exception occurred during parsing
+     * @see JsonPath
+     */
+    public static JsonObject parseJsonObject(InputStream json, boolean index) throws ParserException {
+        Json5Parser parser = Json5Parser.create(json, index);
         if ((parser.nextElement() & Json5Parser.ELEMENT_OBJECT) != 0)
             return parser.parseObject();
         else throw new IllegalArgumentException("first element is string is not JsonObject");
@@ -151,7 +194,22 @@ public class Json {
      * @throws ParserException if an exception occurred during parsing
      */
     public static JsonObject parseJsonObject(InputStream json, Charset charset) throws ParserException {
-        Json5Parser parser = Json5Parser.create(json, charset);
+        return parseJsonObject(json, charset, false);
+    }
+
+    /**
+     * Method parses {@code InputStream} containing JSON text and create returns {@code JsonObject}
+     * for parsed text. If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json {@code InputStream} for JSON text
+     * @param charset charset to use in parsing
+     * @param index indexation flag
+     *
+     * @return parsed {@code JsonObject}
+     * @throws ParserException if an exception occurred during parsing
+     * @see JsonPath
+     */
+    public static JsonObject parseJsonObject(InputStream json, Charset charset, boolean index) throws ParserException {
+        Json5Parser parser = Json5Parser.create(json, charset, index);
         if ((parser.nextElement() & Json5Parser.ELEMENT_OBJECT) != 0)
             return parser.parseObject();
         else throw new IllegalArgumentException("first element is string is not JsonObject");
@@ -165,7 +223,21 @@ public class Json {
      * @throws ParserException if an exception occurred during parsing
      */
     public static JsonArray parseJsonArray(String json) throws ParserException {
-        Json5Parser parser = Json5Parser.create(json);
+        return parseJsonArray(json, false);
+    }
+
+    /**
+     * Method parses {@code String} and create returns {@code JsonArray} for parsed text.
+     * If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json JSON text
+     * @param index indexation flag
+     *
+     * @return parsed {@code JsonArray}
+     * @throws ParserException if an exception occurred during parsing
+     * @see JsonPath
+     */
+    public static JsonArray parseJsonArray(String json, boolean index) throws ParserException {
+        Json5Parser parser = Json5Parser.create(json, index);
         if ((parser.nextElement() & Json5Parser.ELEMENT_ARRAY) != 0)
             return parser.parseArray();
         else throw new IllegalArgumentException("first element is string is not JsonArray");
@@ -179,7 +251,21 @@ public class Json {
      * @throws ParserException if an exception occurred during parsing
      */
     public static JsonArray parseJsonArray(Reader json) throws ParserException {
-        Json5Parser parser = Json5Parser.create(json);
+        return parseJsonArray(json, false);
+    }
+
+    /**
+     * Method parses {@code Reader} text and create returns {@code JsonArray} for parsed text.
+     * If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json JSON text reader
+     * @param index indexation flag
+     *
+     * @return parsed {@code JsonArray}
+     * @throws ParserException if an exception occurred during parsing
+     * @see JsonPath
+     */
+    public static JsonArray parseJsonArray(Reader json, boolean index) throws ParserException {
+        Json5Parser parser = Json5Parser.create(json, index);
         if ((parser.nextElement() & Json5Parser.ELEMENT_ARRAY) != 0)
             return parser.parseArray();
         else throw new IllegalArgumentException("first element is string is not JsonArray");
@@ -194,7 +280,21 @@ public class Json {
      * @throws ParserException if an exception occurred during parsing
      */
     public static JsonArray parseJsonArray(InputStream json) throws ParserException {
-        Json5Parser parser = Json5Parser.create(json);
+        return parseJsonArray(json, false);
+    }
+
+    /**
+     * Method parses {@code InputStream} containing JSON text and create returns {@code JsonArray}
+     * for parsed text. If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json {@code InputStream} for JSON text
+     * @param index indexation flag
+     *
+     * @return parsed {@code JsonArray}
+     * @throws ParserException if an exception occurred during parsing
+     * @see JsonPath
+     */
+    public static JsonArray parseJsonArray(InputStream json, boolean index) throws ParserException {
+        Json5Parser parser = Json5Parser.create(json, index);
         if ((parser.nextElement() & Json5Parser.ELEMENT_ARRAY) != 0)
             return parser.parseArray();
         else throw new IllegalArgumentException("first element is string is not JsonArray");
@@ -210,7 +310,22 @@ public class Json {
      * @throws ParserException if an exception occurred during parsing
      */
     public static JsonArray parseJsonArray(InputStream json, Charset charset) throws ParserException {
-        Json5Parser parser = Json5Parser.create(json, charset);
+        return parseJsonArray(json, charset, false);
+    }
+
+    /**
+     * Method parses {@code InputStream} containing JSON text and create returns {@code JsonArray}
+     * for parsed text. If the index flag is specified, then all parsed objects will be indexed immediately.
+     * @param json {@code InputStream} for JSON text
+     * @param charset charset to use in parsing
+     * @param index indexation flag
+     *
+     * @return parsed {@code JsonArray}
+     * @throws ParserException if an exception occurred during parsing
+     * @see JsonPath
+     */
+    public static JsonArray parseJsonArray(InputStream json, Charset charset, boolean index) throws ParserException {
+        Json5Parser parser = Json5Parser.create(json, charset, index);
         if ((parser.nextElement() & Json5Parser.ELEMENT_ARRAY) != 0)
             return parser.parseArray();
         else throw new IllegalArgumentException("first element is string is not JsonArray");
@@ -343,11 +458,11 @@ public class Json {
         level++;
         while (json.nextReadable(next)) {
             if (next[0] == '}') {
-                sb.append(" ".repeat(4 * --level)).append('}');
+                sb.append(spaces(4 * --level)).append('}');
                 return;
             }
             if (sb.charAt(sb.length() - 1) == '\n')
-                sb.append(" ".repeat(4 * level));
+                sb.append(spaces(4 * level));
             if (next[0] == '"' || next[0] == '\'') {
                 json.reread();
                 beautifyString(json, sb);
@@ -371,11 +486,11 @@ public class Json {
         level++;
         while (json.nextReadable(next)) {
             if (next[0] == ']') {
-                sb.append(" ".repeat(4 * --level)).append(']');
+                sb.append(spaces(4 * --level)).append(']');
                 return;
             }
             if (sb.charAt(sb.length() - 1) == '\n')
-                sb.append(" ".repeat(4 * level));
+                sb.append(spaces(4 * level));
             if (next[0] == '"' || next[0] == '\'') {
                 json.reread();
                 beautifyString(json, sb);
@@ -389,5 +504,13 @@ public class Json {
                 sb.append(",\n");
             } else sb.append(next[0]);
         }
+    }
+
+    private static String spaces(int count) {
+        StringBuilder spaces = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            spaces.append(' ');
+        }
+        return spaces.toString();
     }
 }

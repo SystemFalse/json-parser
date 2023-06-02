@@ -74,4 +74,25 @@ public interface JsonElement extends Cloneable {
      * @return JSON representation of this object
      */
     String toString();
+
+    /**
+     * Method returns specified JSON path of this element. By default, it returns empty path.
+     *
+     * @return path of this element
+     * @see JsonPath
+     */
+    default JsonPath getPath() {
+        return JsonPath.empty();
+    }
+
+    /**
+     * Method return whether this element is indexed or not. Element is indexed when path is not empty.
+     *
+     * @return {@code true} if this element is indexed, {@code false} - otherwise
+     * @see #getPath()
+     * @see JsonPath
+     */
+    default boolean isIndexed() {
+        return !getPath().isEmpty();
+    }
 }

@@ -25,11 +25,13 @@ import java.math.BigInteger;
  * must be used. Default constructor is private so to create an instance
  * of this class methods {@link #create()} and {@link #create(JsonArray)}
  * should be used.
- * @see #build()
+ * @see #build(boolean)
  * @see #create()
  * @see #create(JsonArray)
  */
 public class JsonArrayBuilder implements StructureBuilder {
+    private static final String PACKAGE_NAME = JsonArrayBuilder.class.getPackage().getName();
+
     /**
      * Field that contains constructing instance of {@code JsonArray}.
      */
@@ -59,16 +61,17 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method adds to the end of JSON array {@code null} element.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      */
     public JsonArrayBuilder addNull() {
-        return add(NullValue.NULL);
+        return add(new NullValue());
     }
+
     /**
      * Method adds to the end of JSON array {@code boolean} element.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see BooleanValue#BooleanValue(boolean)
      */
     public JsonArrayBuilder addBoolean(boolean value) {
@@ -79,7 +82,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method adds to the end of JSON array {@code long} element.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see InfinityValue#InfinityValue()
      */
     public JsonArrayBuilder addNumber(long value) {
@@ -91,7 +94,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * radix.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see IntegerValue#IntegerValue(long, int)
      */
     public JsonArrayBuilder addNumber(long value, int radix) {
@@ -102,7 +105,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method adds to the end of JSON array {@code BigInteger} element.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see IntegerValue#IntegerValue(BigInteger)
      */
     public JsonArrayBuilder addNumber(BigInteger value) {
@@ -114,7 +117,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * given radix.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see IntegerValue#IntegerValue(BigInteger, int)
      */
     public JsonArrayBuilder addNumber(BigInteger value, int radix) {
@@ -125,7 +128,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method adds to the end of JSON array {@code double} element.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see DecimalValue#DecimalValue(double)
      */
     public JsonArrayBuilder addNumber(double value) {
@@ -136,7 +139,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method adds to the end of JSON array {@code BigDecimal} element.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see DecimalValue#DecimalValue(BigDecimal)
      */
     public JsonArrayBuilder addNumber(BigDecimal value) {
@@ -149,12 +152,12 @@ public class JsonArrayBuilder implements StructureBuilder {
      * will throw an exception.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see NaNValue
      * @see JsonElement#toJsonString()
      */
     public JsonArrayBuilder addNaN() {
-        return add(NaNValue.NaN);
+        return add(new NaNValue());
     }
 
     /**
@@ -163,7 +166,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * will throw an exception.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see InfinityValue#InfinityValue()
      * @see JsonElement#toJsonString()
      */
@@ -177,7 +180,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * will throw an exception.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see InfinityValue#InfinityValue(boolean)
      * @see JsonElement#toJsonString()
      */
@@ -189,7 +192,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method adds to the end of JSON array {@code String} element.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see StringValue#StringValue(String)
      */
     public JsonArrayBuilder addString(String value) {
@@ -201,7 +204,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      *
      * @return this builder
      * @throws NullPointerException if builder is null
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      */
     public JsonArrayBuilder addArray(JsonArrayBuilder builder) {
         return add(builder.value.clone());
@@ -212,7 +215,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      *
      * @return this builder
      * @throws NullPointerException if builder is null
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see JsonObjectBuilder
      */
     public JsonArrayBuilder addObject(JsonObjectBuilder builder) {
@@ -224,13 +227,15 @@ public class JsonArrayBuilder implements StructureBuilder {
      * it will be skipped without exception.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      */
     public JsonArrayBuilder add(JsonElement element) {
         checkBuilt();
         if (element == null)
             throw new NullPointerException("null element");
-        value.values.add(element);
+        if (!element.getClass().getPackage().getName().equals(PACKAGE_NAME))
+            throw new IllegalArgumentException("element class is not supported");
+        value.values.add(element.copy());
         return this;
     }
 
@@ -239,7 +244,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      *
      * @param index index of element to be removed
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @throws IndexOutOfBoundsException if index is incorrect
      */
     public JsonArrayBuilder remove(int index) {
@@ -252,17 +257,17 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method removes first {@code null} element from JSON array.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      */
     public JsonArrayBuilder removeNull() {
-        return remove(NullValue.NULL);
+        return remove(new NullValue());
     }
 
     /**
      * Method removes first {@code boolean} element with given value from JSON array.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see BooleanValue#BooleanValue(boolean)
      */
     public JsonArrayBuilder removeBoolean(boolean value) {
@@ -273,7 +278,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method removes first {@code long} element with given value from JSON array.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see IntegerValue#IntegerValue(long)
      */
     public JsonArrayBuilder removeNumber(long value) {
@@ -284,7 +289,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method removes first {@code BigInteger} element with given value from JSON array.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see IntegerValue#IntegerValue(BigInteger)
      */
     public JsonArrayBuilder removeNumber(BigInteger value) {
@@ -295,7 +300,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method removes first {@code double} element with given value from JSON array.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see DecimalValue#DecimalValue(double)
      */
     public JsonArrayBuilder removeNumber(double value) {
@@ -306,7 +311,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method removes first {@code BigDecimal} element with given value from JSON array.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see DecimalValue#DecimalValue(BigDecimal)
      */
     public JsonArrayBuilder removeNumber(BigDecimal value) {
@@ -317,7 +322,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      * Method removes first {@code String} element with given value from JSON array.
      *
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      * @see StringValue#StringValue(String)
      */
     public JsonArrayBuilder removeString(String value) {
@@ -330,7 +335,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      *
      * @return this builder
      * @throws NullPointerException if builder is null
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      */
     public JsonArrayBuilder removeArray(JsonArrayBuilder builder) {
         return remove(builder.value);
@@ -342,7 +347,7 @@ public class JsonArrayBuilder implements StructureBuilder {
      *
      * @return this builder
      * @throws NullPointerException if builder is null
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      */
     public JsonArrayBuilder removeObject(JsonObjectBuilder builder) {
         return remove(builder.value);
@@ -353,11 +358,19 @@ public class JsonArrayBuilder implements StructureBuilder {
      *
      * @param element element to be removed
      * @return this builder
-     * @throws IllegalStateException if method {@link #build()} was invoked before
+     * @throws IllegalStateException if method {@link #build(boolean)} was invoked before
      */
     public JsonArrayBuilder remove(JsonElement element) {
         checkBuilt();
         if (element == null) return this;
+        if (element.isIndexed()) {
+            if (element instanceof JsonArray)
+                ((JsonArray) element).resolvePath(new JsonPath.BuildablePath());
+            else if (element instanceof JsonObject)
+                ((JsonObject) element).resolvePath(new JsonPath.BuildablePath());
+            else if (element.getPath() instanceof JsonPath.BuildablePath)
+                ((JsonPath.BuildablePath) element.getPath()).clear();
+        }
         value.values.remove(element);
         return this;
     }
@@ -369,6 +382,13 @@ public class JsonArrayBuilder implements StructureBuilder {
 
     @Override
     public JsonArray build() {
+        return build(false);
+    }
+
+    @Override
+    public JsonArray build(boolean setPath) {
+        if (built) return value;
+        if (setPath) value.resolvePath(new JsonPath.BuildablePath());
         built = true;
         return value;
     }
