@@ -133,7 +133,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
      * @see JsonValue
      */
     public boolean isValue(String key) {
-        return values.get(key) instanceof JsonValue;
+        return get(key) instanceof JsonValue;
     }
 
     /**
@@ -144,7 +144,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
      * @see JsonValue
      */
     public JsonValue getValue(String key) {
-        return (JsonValue) values.get(key);
+        return (JsonValue) get(key);
     }
 
     /**
@@ -155,7 +155,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
      * @see JsonArray
      */
     public boolean isArray(String key) {
-        return values.get(key) instanceof JsonArray;
+        return get(key) instanceof JsonArray;
     }
 
     /**
@@ -166,7 +166,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
      * @see JsonArray
      */
     public JsonArray getArray(String key) {
-        return (JsonArray) values.get(key);
+        return (JsonArray) get(key);
     }
 
     /**
@@ -177,7 +177,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
      * @see JsonObject
      */
     public boolean isObject(String key) {
-        return values.get(key) instanceof JsonObject;
+        return get(key) instanceof JsonObject;
     }
 
     /**
@@ -188,7 +188,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
      * @see JsonObject
      */
     public JsonObject getObject(String key) {
-        return (JsonObject) values.get(key);
+        return (JsonObject) get(key);
     }
 
     @Override
