@@ -169,7 +169,9 @@ public class JsonPath implements Cloneable, Serializable {
             JsonPath clone = (JsonPath) super.clone();
             LinkedList<Resolver> resolvers = new LinkedList<>();
             clone.path = path.intern();
-            clone.getter = compile0(path, resolvers);
+            if (!path.isEmpty()) {
+                clone.getter = compile0(path, resolvers);
+            } else clone.getter = new EmptyPath();
             clone.resolvers = resolvers;
             return clone;
         } catch (CloneNotSupportedException e) {
@@ -486,8 +488,13 @@ public class JsonPath implements Cloneable, Serializable {
             if (!(super.getter instanceof EmptyPath)) {
                 super.resolvers.add(super.getter);
             }
-            super.getter = new ObjectGet(super.path + ".", objKey);
-            super.path += "." + objKey;
+            if (!super.path.isEmpty()) {
+                super.getter = new ObjectGet(super.path + ".", objKey);
+                super.path += "." + objKey;
+            } else {
+                super.getter = new ObjectGet(super.path, objKey);
+                super.path += objKey;
+            }
         }
 
         /**

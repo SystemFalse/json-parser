@@ -75,7 +75,8 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
                 throw new IllegalArgumentException("path \"" + path + "\", element \""
                         + entry.getKey() + "\": name is incorrect");
             }
-            curPath.add(entry.getKey());
+            if (!entry.getKey().isEmpty()) curPath.add(entry.getKey());
+            else curPath.add("\\0");
             JsonElement je = entry.getValue();
             if (je instanceof JsonArray) {
                 ((JsonArray) je).resolvePath(curPath);
@@ -209,6 +210,11 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
     @Override
     public Collection<JsonElement> values() {
         return values.values();
+    }
+
+    @Override
+    public JsonElement getOrDefault(Object key, JsonElement defaultValue) {
+        return values.getOrDefault(key, defaultValue);
     }
 
     @Override

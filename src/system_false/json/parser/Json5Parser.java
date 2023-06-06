@@ -219,7 +219,7 @@ public class Json5Parser {
     }
 
     private static final Pattern NUMBER = Pattern.compile("^(?<sign>[+\\-])?" +
-            "(?<number>(?<special>Infinity|NaN)|(?:(?:0|[1-9]\\d*)(?<decimal>\\.?)(?:\\d+)?(?:[eE]([+\\-]?\\d+))?|" +
+            "(?<number>(?<special>Infinity|NaN)|(?:(?:0|[1-9]\\d*)(?<decimal>\\.\\d*)?(?:[eE]([+\\-]?\\d+))?|" +
             "(?<radix>(?<binary>0b[01]+)|(?<octal>0o[0-7]+)|(?<hex>0x\\p{XDigit}+))))$");
 
     private boolean isNumberChar(char ch) {
