@@ -116,9 +116,9 @@ public final class InfinityValue extends NumberValue {
 
     @Override
     public NumberValue clone() {
-        IntegerValue clone;
+        InfinityValue clone;
         try {
-            clone = (IntegerValue) super.clone();
+            clone = (InfinityValue) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
