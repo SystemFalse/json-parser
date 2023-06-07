@@ -312,16 +312,6 @@ public class Json5Parser {
         return new StringValue(sb.toString());
     }
 
-    private static final List<String> ECMA_RESERVED_NAMES = Arrays.asList(
-            "break", "do", "instanceof", "typeof",
-            "case", "else", "new", "var",
-            "catch", "finally", "return", "void",
-            "continue", "for", "switch", "while",
-            "debugger", "function", "this", "with",
-            "default", "if", "throw", "delete",
-            "in", "try"
-    );
-
     private static final Pattern ECMA_NAME_PATTERN = Pattern.compile(
             "^\\p{javaJavaIdentifierStart}\\p{javaUnicodeIdentifierPart}*$");
 
@@ -339,8 +329,6 @@ public class Json5Parser {
             preParser.reread();
             break;
         }
-        if (ECMA_RESERVED_NAMES.contains(sb.toString()))
-            throw new IOException("key \"" + sb + "\" is reserved word and can not be used");
         return sb.toString();
     }
 

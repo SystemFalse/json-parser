@@ -56,7 +56,7 @@ public final class BooleanValue implements JsonValue {
 
     @Override
     public boolean asBoolean() {
-        return false;
+        return value;
     }
 
     @Override
