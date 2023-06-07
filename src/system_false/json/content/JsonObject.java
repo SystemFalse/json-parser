@@ -120,6 +120,20 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
         return values.isEmpty();
     }
 
+    /**
+     * Returns the value to which the specified key is mapped,
+     * or throws {@link NoSuchElementException} if this map contains no mapping for the key.
+     * <p>
+     * More formally, if this map contains a mapping from a key
+     * {@code k} to a value {@code v} such that {@code (key==null ? k==null :
+     * key.equals(k))}, then this method returns {@code v}. (There can be at most one such mapping.)
+     * </p>
+     * @param key the key whose associated value is to be returned
+     *
+     * @return the value to which the specified key is mapped
+     * @throws ClassCastException if the key is of an inappropriate type for this map
+     * @throws NoSuchElementException if the specified key is not mapped
+     */
     @Override
     public JsonElement get(Object key) {
         if (!containsKey(key)) throw new NoSuchElementException("no value for given key");
@@ -215,6 +229,169 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
     @Override
     public JsonElement getOrDefault(Object key, JsonElement defaultValue) {
         return values.getOrDefault(key, defaultValue);
+    }
+
+    /**
+     * Returns the value to which the specified key is mapped, or
+     * {@link NullValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     *
+     * @return the value to which the specified key is mapped, or
+     * {@code NullValue} if this map contains no mapping for the key
+     * @see NullValue
+     */
+    public JsonElement getOrNull(String key) {
+        JsonElement je;
+        return (je = values.get(key)) != null ? je : NullValue.NULL;
+    }
+
+    /**
+     * Returns the value casted into {@link BooleanValue} to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code BooleanValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     * @param defaultValue value that will be returned if specified key is not mapped
+     *
+     * @return the value to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code BooleanValue} if this map contains no mapping for the key
+     * @see BooleanValue
+     */
+    public BooleanValue getOrDefault(String key, boolean defaultValue) {
+        JsonElement je;
+        return (je = values.get(key)) != null ? (BooleanValue) je : new BooleanValue(defaultValue);
+    }
+
+    /**
+     * Returns the value casted into {@link NumberValue} to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     * @param defaultValue value that will be returned if specified key is not mapped
+     *
+     * @return the value to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key
+     * @see NumberValue
+     */
+    public NumberValue getOrDefault(String key, byte defaultValue) {
+        JsonElement je;
+        return (je = values.get(key)) != null ? (NumberValue) je : new IntegerValue(defaultValue);
+    }
+
+    /**
+     * Returns the value casted into {@link NumberValue} to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     * @param defaultValue value that will be returned if specified key is not mapped
+     *
+     * @return the value to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key
+     * @see NumberValue
+     */
+    public NumberValue getOrDefault(String key, short defaultValue) {
+        JsonElement je;
+        return (je = values.get(key)) != null ? (NumberValue) je : new IntegerValue(defaultValue);
+    }
+
+    /**
+     * Returns the value casted into {@link NumberValue} to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     * @param defaultValue value that will be returned if specified key is not mapped
+     *
+     * @return the value to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key
+     * @see NumberValue
+     */
+    public NumberValue getOrDefault(String key, int defaultValue) {
+        JsonElement je;
+        return (je = values.get(key)) != null ? (NumberValue) je : new IntegerValue(defaultValue);
+    }
+
+    /**
+     * Returns the value casted into {@link NumberValue} to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     * @param defaultValue value that will be returned if specified key is not mapped
+     *
+     * @return the value to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key
+     * @see NumberValue
+     */
+    public NumberValue getOrDefault(String key, float defaultValue) {
+        JsonElement je;
+        return (je = values.get(key)) != null ? (NumberValue) je : new DecimalValue(defaultValue);
+    }
+
+    /**
+     * Returns the value casted into {@link NumberValue} to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     * @param defaultValue value that will be returned if specified key is not mapped
+     *
+     * @return the value to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key
+     * @see NumberValue
+     */
+    public NumberValue getOrDefault(String key, long defaultValue) {
+        JsonElement je;
+        return (je = values.get(key)) != null ? (NumberValue) je : new IntegerValue(defaultValue);
+    }
+
+    /**
+     * Returns the value casted into {@link NumberValue} to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     * @param defaultValue value that will be returned if specified key is not mapped
+     *
+     * @return the value to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key
+     * @see NumberValue
+     */
+    public NumberValue getOrDefault(String key, double defaultValue) {
+        JsonElement je;
+        return (je = values.get(key)) != null ? (NumberValue) je : new DecimalValue(defaultValue);
+    }
+
+    /**
+     * Returns the value casted into {@link NumberValue} to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     *
+     * @return the value to which the specified key is mapped, or
+     * {@code NaN} wrapped into {@code NumberValue} if this map contains no mapping for the key
+     * @see NumberValue
+     */
+    public NumberValue getOrNaN(String key) {
+        JsonElement je;
+        return (je = values.get(key)) != null ? (NumberValue) je : NaNValue.NaN;
+    }
+
+    /**
+     * Returns the value casted into {@link NumberValue} to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code NumberValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     * @param negative will defaultValue be negative or not infinity
+     *
+     * @return the value to which the specified key is mapped, or
+     * +/-Infinity wrapped into {@code NumberValue} if this map contains no mapping for the key
+     * @see NumberValue
+     */
+    public NumberValue getOrInfinity(String key, boolean negative) {
+        JsonElement je;
+        return  (je = values.get(key)) != null ? (NumberValue) je : new InfinityValue(negative);
+    }
+
+    /**
+     * Returns the value casted into {@link StringValue} to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code StringValue} if this map contains no mapping for the key.
+     * @param key the key whose associated value is to be returned
+     * @param defaultValue value that will be returned if specified key is not mapped
+     *
+     * @return the value to which the specified key is mapped, or
+     * {@code defaultValue} wrapped into {@code StringValue} if this map contains no mapping for the key
+     * @see StringValue
+     */
+    public StringValue getOrDefault(String key, String defaultValue) {
+        JsonElement je;
+        return (je = values.get(key)) != null ? (StringValue) je : new StringValue(defaultValue);
     }
 
     @Override
