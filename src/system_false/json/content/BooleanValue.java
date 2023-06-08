@@ -101,7 +101,7 @@ public final class BooleanValue implements JsonValue {
 
     @Override
     public JsonPath getPath() {
-        return path;
+        return path.asJsonPath();
     }
 
     @Override

@@ -365,9 +365,9 @@ public class JsonArrayBuilder implements StructureBuilder {
         if (element == null) return this;
         if (element.isIndexed()) {
             if (element instanceof JsonArray)
-                ((JsonArray) element).resolvePath(new JsonPath.BuildablePath());
+                ((JsonArray) element).resolvePath(JsonPath.empty());
             else if (element instanceof JsonObject)
-                ((JsonObject) element).resolvePath(new JsonPath.BuildablePath());
+                ((JsonObject) element).resolvePath(JsonPath.empty());
             else if (element.getPath() instanceof JsonPath.BuildablePath)
                 ((JsonPath.BuildablePath) element.getPath()).clear();
         }
@@ -388,7 +388,7 @@ public class JsonArrayBuilder implements StructureBuilder {
     @Override
     public JsonArray build(boolean setPath) {
         if (built) return value;
-        if (setPath) value.resolvePath(new JsonPath.BuildablePath());
+        if (setPath) value.resolvePath(JsonPath.empty());
         built = true;
         return value;
     }

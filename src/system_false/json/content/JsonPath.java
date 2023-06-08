@@ -153,6 +153,48 @@ public class JsonPath implements Cloneable, Serializable {
     }
 
     /**
+     * Method returns new {@code JsonPath} that points to an object key.
+     * <p>
+     * All fields of this object will be copied to new instance. Before adding, specified key will be checked
+     * using {@link #checkName(String)} method.
+     * </p>
+     * @param key object key to add to a new path
+     *
+     * @return new {@code JsonPath} that points to an object key
+     * @see #checkName(String)
+     */
+    public JsonPath object(String key) {
+        checkName(key);
+        String path = this.path + '.' + (key.isEmpty() ? "\\0" : key);
+        LinkedList<Resolver> resolvers = new LinkedList<>(this.resolvers);
+        if (!(this.getter instanceof EmptyPath))
+            resolvers.add(this.getter);
+        Resolver getter = new ObjectGet(this.path, key);
+        return new JsonPath(path, resolvers, getter);
+    }
+
+    /**
+     * Method returns new {@code JsonPath} that points to an array index.
+     * <p>
+     * All fields of this object will be copied to new instance. Before adding, the index will be checked for
+     * negativity.
+     * </p>
+     * @param index array index to add to a new path
+     *
+     * @return new {@code JsonPath} that points to an array index
+     * @throws IndexOutOfBoundsException if specified index is less than 0
+     */
+    public JsonPath array(int index) {
+        if (index < 0) throw new IndexOutOfBoundsException("negative index");
+        String path = this.path + "[" + index + "]";
+        LinkedList<Resolver> resolvers = new LinkedList<>(this.resolvers);
+        if (!(this.getter instanceof EmptyPath))
+            resolvers.add(this.getter);
+        Resolver getter = new ArrayGet(this.path, index);
+        return new JsonPath(path, resolvers, getter);
+    }
+
+    /**
      * Method creates exception with message that contains path and element name.
      * @param res resolver in which an exception occurred
      * @param message common message
@@ -286,7 +328,7 @@ public class JsonPath implements Cloneable, Serializable {
         @Override
         public JsonElement apply(JsonElement je) {
             if (!(je instanceof JsonObject)) {
-                throw new RuntimeException("element is not object");
+                throw new NoSuchElementException("element " + path + " is not object");
             }
             JsonObject jo = (JsonObject) je;
             return jo.get(name);
@@ -329,7 +371,7 @@ public class JsonPath implements Cloneable, Serializable {
         @Override
         public JsonElement apply(JsonElement je) {
             if (!(je instanceof JsonArray)) {
-                throw new RuntimeException("element is not array");
+                throw new RuntimeException("element " + path + " is not array");
             }
             JsonArray ja = (JsonArray) je;
             return ja.get(index);
@@ -423,9 +465,9 @@ public class JsonPath implements Cloneable, Serializable {
      */
     public static void indexElements(JsonStructure structure) {
         if (structure instanceof JsonArray) {
-            ((JsonArray) structure).resolvePath(new BuildablePath());
+            ((JsonArray) structure).resolvePath(JsonPath.empty());
         } else if (structure instanceof JsonObject) {
-            ((JsonObject) structure).resolvePath(new BuildablePath());
+            ((JsonObject) structure).resolvePath(JsonPath.empty());
         }
     }
 
@@ -482,32 +524,36 @@ public class JsonPath implements Cloneable, Serializable {
         /**
          * Method adds object name to the end of this path. For example, if path was "foo",
          * after invoking method add("bar"), path will be "foo.bar".
-         * @param objKey object key to add
+         * @param key object key to add
          */
-        void add(String objKey) {
+        @Override
+        public BuildablePath object(String key) {
             if (!(super.getter instanceof EmptyPath)) {
                 super.resolvers.add(super.getter);
             }
             if (!super.path.isEmpty()) {
-                super.getter = new ObjectGet(super.path + ".", objKey);
-                super.path += "." + objKey;
+                super.getter = new ObjectGet(super.path, key);
+                super.path += "." + key;
             } else {
-                super.getter = new ObjectGet(super.path, objKey);
-                super.path += objKey;
+                super.getter = new ObjectGet(super.path, key);
+                super.path += key;
             }
+            return this;
         }
 
         /**
          * Method add array index to the end of this path. For example, if path was "foo",
          * after invoking method add(1), path will be "foo[1]".
-         * @param arrIndex array index to add
+         * @param index array index to add
          */
-        void add(int arrIndex) {
+        @Override
+        public BuildablePath array(int index) {
             if (!(super.getter instanceof EmptyPath)) {
                 super.resolvers.add(super.getter);
             }
-            super.getter = new ArrayGet(super.path, arrIndex);
-            super.path += "[" + arrIndex + "]";
+            super.getter = new ArrayGet(super.path, index);
+            super.path += "[" + index + "]";
+            return this;
         }
 
         /**
@@ -529,6 +575,14 @@ public class JsonPath implements Cloneable, Serializable {
             super.path = "";
             super.resolvers.clear();
             super.getter = new EmptyPath();
+        }
+
+        /**
+         * Method converts this modifiable path to unmodifiable.
+         * @return unmodifiable form of this path
+         */
+        JsonPath asJsonPath() {
+            return new JsonPath(super.path, super.resolvers, super.getter);
         }
 
         @Override

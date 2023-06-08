@@ -15,6 +15,8 @@
 
 package system_false.json.content;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -61,10 +63,9 @@ public final class JsonArray extends AbstractList<JsonElement> implements JsonSt
      * indexed too.
      * @param path path to use for this object
      */
-    void resolvePath(JsonPath.BuildablePath path) {
+    void resolvePath(JsonPath path) {
         for (int i = 0; i < values.size(); i++) {
-            JsonPath.BuildablePath curPath = path.clone();
-            curPath.add(i);
+            JsonPath curPath = path.array(i);
             JsonElement je = values.get(i);
             if (je instanceof JsonArray) {
                 ((JsonArray) je).resolvePath(curPath);
@@ -190,6 +191,312 @@ public final class JsonArray extends AbstractList<JsonElement> implements JsonSt
     }
 
     @Override
+    public void sort(Comparator<? super JsonElement> c) {
+        values.sort(c);
+    }
+
+    /**
+     * Returns {@code true} if this list contains null element.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one null element.
+     *
+     * @return {@code true} if this list contains null element
+     */
+    public boolean containsNull() {
+        for (JsonElement je : values) {
+            if (je instanceof NullValue) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains NaN element.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one NaN element.
+     *
+     * @return {@code true} if this list contains NaN element
+     */
+    public boolean containsNaN() {
+        for (JsonElement je : values) {
+            if (je instanceof NumberValue && Double.isNaN(((NumberValue) je).doubleValue())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains infinity element with specified sign.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one infinity element with equal sign.
+     * @param negative sign of infinity to find
+     *
+     * @return {@code true} if this list contains infinity element with specified sign
+     */
+    public boolean containsInfinity(boolean negative) {
+        for (JsonElement je : values) {
+            if (je instanceof NumberValue && Double.isInfinite(((NumberValue) je).asDouble())) {
+                if (((NumberValue) je).doubleValue() > 0 != negative) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains boolean element with specified value.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one boolean element with equal value.
+     * @param value {@code boolean} value to find
+     *
+     * @return {@code true} if this list contains boolean element with specified value
+     */
+    public boolean contains(boolean value) {
+        for (JsonElement je : values) {
+            if (je instanceof BooleanValue && ((BooleanValue) je).asBoolean() == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains number element with specified value.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one number element with equal value.
+     * @param value {@code byte} value to find
+     *
+     * @return {@code true} if this list contains number element with specified value
+     */
+    public boolean contains(byte value) {
+        for (JsonElement je : values) {
+            if (je instanceof NumberValue && ((NumberValue) je).doubleValue() == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains number element with specified value.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one number element with equal value.
+     * @param value {@code short} value to find
+     *
+     * @return {@code true} if this list contains number element with specified value
+     */
+    public boolean contains(short value) {
+        for (JsonElement je : values) {
+            if (je instanceof NumberValue && ((NumberValue) je).doubleValue() == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains number element with specified value.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one number element with equal value.
+     * @param value {@code int} value to find
+     *
+     * @return {@code true} if this list contains number element with specified value
+     */
+    public boolean contains(int value) {
+        for (JsonElement je : values) {
+            if (je instanceof NumberValue && ((NumberValue) je).doubleValue() == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains number element with specified value.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one number element with equal value.
+     * @param value {@code float} value to find
+     *
+     * @return {@code true} if this list contains number element with specified value
+     */
+    public boolean contains(float value) {
+        for (JsonElement je : values) {
+            if (je instanceof NumberValue && ((NumberValue) je).doubleValue() == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains number element with specified value.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one number element with equal value.
+     * @param value {@code long} value to find
+     *
+     * @return {@code true} if this list contains number element with specified value
+     */
+    public boolean contains(long value) {
+        for (JsonElement je : values) {
+            if (je instanceof NumberValue && ((NumberValue) je).doubleValue() == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains number element with specified value.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one number element with equal value.
+     * @param value {@code double} value to find
+     *
+     * @return {@code true} if this list contains number element with specified value
+     */
+    public boolean contains(double value) {
+        for (JsonElement je : values) {
+            if (je instanceof NumberValue && ((NumberValue) je).doubleValue() == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains number element with specified value.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one number element with equal value.
+     * @param value {@code BigInteger} value to find
+     *
+     * @return {@code true} if this list contains number element with specified value
+     */
+    public boolean contains(BigInteger value) {
+        if (value == null) return false;
+        for (JsonElement je : values) {
+            if (je instanceof NumberValue && ((NumberValue) je).asBigInteger().equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains number element with specified value.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one number element with equal value.
+     * @param value {@code BigDecimal} value to find
+     *
+     * @return {@code true} if this list contains number element with specified value
+     */
+    public boolean contains(BigDecimal value) {
+        if (value == null) return false;
+        for (JsonElement je : values) {
+            if (je instanceof NumberValue && ((NumberValue) je).asBigDecimal().equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this list contains string element with specified value.
+     * More formally, returns {@code true} if and only if this list contains
+     * at least one number element with equal value.
+     * @param value {@code String} value to find
+     *
+     * @return {@code true} if this list contains number element with specified value
+     */
+    public boolean contains(String value) {
+        if (value == null) return false;
+        for (JsonElement je : values) {
+            if (je instanceof StringValue && ((StringValue) je).asString().equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private class Itr implements Iterator<JsonElement> {
+        int index;
+
+        @Override
+        public boolean hasNext() {
+            return index < values.size();
+        }
+
+        @Override
+        public JsonElement next() {
+            return values.get(index++);
+        }
+    }
+
+    @Override
+    public Iterator<JsonElement> iterator() {
+        return new Itr();
+    }
+
+    private class ListItr implements ListIterator<JsonElement> {
+        int index;
+
+        ListItr(int start) {
+            index = start;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return index < values.size();
+        }
+
+        @Override
+        public JsonElement next() {
+            return values.get(index++);
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return index > 0;
+        }
+
+        @Override
+        public JsonElement previous() {
+            return values.get(--index);
+        }
+
+        @Override
+        public int nextIndex() {
+            return index + 1;
+        }
+
+        @Override
+        public int previousIndex() {
+            return index - 1;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("remove");
+        }
+
+        @Override
+        public void set(JsonElement jsonElement) {
+            throw new UnsupportedOperationException("set");
+        }
+
+        @Override
+        public void add(JsonElement jsonElement) {
+            throw new UnsupportedOperationException("add");
+        }
+    }
+
+    @Override
+    public ListIterator<JsonElement> listIterator(int index) {
+        return new ListItr(index);
+    }
+
+    @Override
     public String toJsonString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -272,7 +579,7 @@ public final class JsonArray extends AbstractList<JsonElement> implements JsonSt
 
     @Override
     public JsonPath getPath() {
-        return path;
+        return path.asJsonPath();
     }
 
     @Override

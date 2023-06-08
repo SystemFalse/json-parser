@@ -222,9 +222,9 @@ public class JsonObjectBuilder implements StructureBuilder {
         JsonElement element = value.values.remove(key);
         if (element != null && element.isIndexed()) {
             if (element instanceof JsonArray)
-                ((JsonArray) element).resolvePath(new JsonPath.BuildablePath());
+                ((JsonArray) element).resolvePath(JsonPath.empty());
             else if (element instanceof JsonObject)
-                ((JsonObject) element).resolvePath(new JsonPath.BuildablePath());
+                ((JsonObject) element).resolvePath(JsonPath.empty());
             else if (element.getPath() instanceof JsonPath.BuildablePath)
                 ((JsonPath.BuildablePath) element.getPath()).clear();
         }
@@ -244,7 +244,7 @@ public class JsonObjectBuilder implements StructureBuilder {
     @Override
     public JsonObject build(boolean setPath) {
         if (built) return value;
-        if (setPath) value.resolvePath(new JsonPath.BuildablePath());
+        if (setPath) value.resolvePath(JsonPath.empty());
         built = true;
         return value;
     }
