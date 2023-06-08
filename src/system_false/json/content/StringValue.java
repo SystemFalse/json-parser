@@ -170,7 +170,7 @@ public final class StringValue implements JsonValue, CharSequence {
 
     @Override
     public JsonPath getPath() {
-        return path;
+        return path.asJsonPath();
     }
 
     @Override

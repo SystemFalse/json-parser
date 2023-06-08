@@ -87,7 +87,7 @@ public final class NullValue implements JsonValue {
 
     @Override
     public JsonPath getPath() {
-        return path;
+        return path.asJsonPath();
     }
 
     @Override

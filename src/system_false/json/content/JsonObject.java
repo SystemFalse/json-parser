@@ -66,17 +66,17 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
      * indexed too.
      * @param path path to use for this object
      */
-    void resolvePath(JsonPath.BuildablePath path) {
+    void resolvePath(JsonPath path) {
         for (Entry<String, ? extends JsonElement> entry : values.entrySet()) {
-            JsonPath.BuildablePath curPath = path.clone();
             try {
                 JsonPath.checkName(entry.getKey());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("path \"" + path + "\", element \""
                         + entry.getKey() + "\": name is incorrect");
             }
-            if (!entry.getKey().isEmpty()) curPath.add(entry.getKey());
-            else curPath.add("\\0");
+            JsonPath curPath;
+            if (!entry.getKey().isEmpty()) curPath = path.object(entry.getKey());
+            else curPath = path.object("\\0");
             JsonElement je = entry.getValue();
             if (je instanceof JsonArray) {
                 ((JsonArray) je).resolvePath(curPath);
@@ -506,7 +506,7 @@ public final class JsonObject extends AbstractMap<String, JsonElement> implement
 
     @Override
     public JsonPath getPath() {
-        return path;
+        return path.asJsonPath();
     }
 
     @Override

@@ -150,6 +150,6 @@ public abstract class NumberValue extends Number implements JsonValue {
 
     @Override
     public JsonPath getPath() {
-        return path;
+        return path.asJsonPath();
     }
 }
