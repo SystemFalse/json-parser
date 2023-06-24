@@ -13,7 +13,7 @@
  * accompanied this code).
  */
 
-package system_false.json.content;
+package org.system_false.json.content;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
